@@ -8,16 +8,20 @@ import {
   OnGatewayDisconnect,
   MessageBody,
 } from '@nestjs/websockets';
-import { log } from 'console';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+  },
+})
 export class WebRtcGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer() server: Server;
 
   private connections: Map<string, Socket> = new Map();
+  private rooms: Map<string, Socket[]> = new Map();
 
   afterInit() {
     console.log('Gateway Initialized');
@@ -34,38 +38,68 @@ export class WebRtcGateway
   }
 
   @SubscribeMessage('test')
-  handleMessage(@MessageBody() data: any): void {
+  handleMessage(client: Socket, data: string) {
     console.log(data);
-    this.server.emit('test', data);
+    const { to, test } = JSON.parse(data);
+    const receiver = this.connections.get(to);
+    if (receiver) {
+      receiver.emit('test', { from: client.id, test });
+    } else {
+      client.emit('error', 'Not found');
+    }
   }
 
-  @SubscribeMessage('join')
+  @SubscribeMessage('join-room')
   handleJoinRoom(client: Socket, room: string) {
+    // console.log(room);
+
     client.join(room);
-    console.log(`Client ${client.id} joined room ${room}`);
+    client.emit('hello', room.toString());
+    this.rooms.get(room)?.push(client) || this.rooms.set(room, [client]);
+  }
+
+  @SubscribeMessage('send-message-to-room')
+  handleSendMessageToRoom(client: Socket, data: string) {
+    console.log(data);
+    const { room, message } = JSON.parse(data);
+    console.log(room, message);
+    this.server.to(room).emit('message', message);
   }
 
   @SubscribeMessage('offer')
   handleOffer(client: Socket, data: string) {
     // Offer here is the RTCSessionDescription containing type and sdp
-    const { to, offer } = JSON.parse(data);
-    // console.log(to, offer.type, data);
+    try {
+      console.log(data);
+      const { to, offer } = JSON.parse(data);
+      console.log(to, offer);
+      // get where to is the id of the client to send the offer to
+      const receiver = this.connections.get(to);
+      if (receiver) {
+        receiver.emit(
+          'offer',
+          JSON.stringify({ from: client.id, offer: offer }),
+        );
+      } else {
+        console.log('fick up');
 
-    // get where to is the id of the client to send the offer to
-    const receiver = this.connections.get(to);
-    if (receiver) {
-      receiver.emit('offer', { from: client.id, offer });
-    } else {
-      client.emit('error', 'Recipient not found');
+        client.emit('error', 'Recipient not found');
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 
   @SubscribeMessage('answer')
   handleAnswer(client: Socket, data: string) {
+    console.log(data);
     const { to, answer } = JSON.parse(data);
     const receiver = this.connections.get(to);
     if (receiver) {
-      receiver.emit('answer', { from: client.id, answer });
+      receiver.emit(
+        'answer',
+        JSON.stringify({ from: client.id, answer: answer }),
+      );
     } else {
       client.emit('error', 'Recipient not found');
     }
@@ -73,10 +107,12 @@ export class WebRtcGateway
 
   @SubscribeMessage('ice-candidate')
   handleIceCandidate(client: Socket, data: string) {
-    const { to, candidate } = JSON.parse(data);
+    const { to, icec } = JSON.parse(data);
     const receiver = this.connections.get(to);
+    console.log(to, icec);
+
     if (receiver) {
-      receiver.emit('ice-candidate', { from: client.id, candidate });
+      receiver.emit('ice-candidate', JSON.stringify({ from: client.id, icec }));
     } else {
       client.emit('error', 'Recipient not found');
     }
