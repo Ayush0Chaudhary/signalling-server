@@ -6,7 +6,6 @@ import {
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
@@ -49,14 +48,13 @@ export class WebRtcGateway
     }
   }
 
-  @SubscribeMessage('join-room')
-  handleJoinRoom(client: Socket, room: string) {
-    // console.log(room);
-
-    client.join(room);
-    client.emit('hello', room.toString());
-    this.rooms.get(room)?.push(client) || this.rooms.set(room, [client]);
-  }
+  // @SubscribeMessage('join-room')
+  // handleJoinRoom(client: Socket, room: string) {
+  //   // console.log(room);
+  //   client.join(room);
+  //   client.emit('hello', room.toString());
+  //   this.rooms.get(room)?.push(client) || this.rooms.set(room, [client]);
+  // }
 
   @SubscribeMessage('send-message-to-room')
   handleSendMessageToRoom(client: Socket, data: string) {
