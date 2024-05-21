@@ -1,5 +1,8 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ProjectService } from './project.service';
+import { CreatedProjectDto } from './dto/create-project.dto';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { DeleteTaskDto } from './dto/delete-task.dto';
 
 @Controller('project')
 export class ProjectController {
@@ -9,4 +12,32 @@ export class ProjectController {
   async test() {
     return this.projectService.test();
   }
+
+  @Post('create')
+  createProject(@Body() createdProjectDto: CreatedProjectDto) {
+    return this.projectService.createProject(createdProjectDto);
+  }
+
+  @Post('addTask')
+  addTask(@Body() createTaskDto: CreateTaskDto) {
+    return this.projectService.addTask(createTaskDto);
+  }
+
+  @Post('deleteTask')
+  deleteTask(@Body() task: DeleteTaskDto) {
+    return this.projectService.deleteTask(task);
+  }
+
+  // @Post('addParticipant')
+  // addParticipant(@Body() participant: any) {
+  //   return this.projectService.addParticipant(participant);
+  // }
+
+  // @Post('removeParticipant')
+  // removeParticipant(@Body() participant: any) {
+  //   return this.projectService.removeParticipant(participant);
+  // }
+
+  // @Post
+
 }

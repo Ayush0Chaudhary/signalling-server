@@ -12,6 +12,9 @@ export class Task {
   description: string;
 
   @Prop()
+  details: string;
+
+  @Prop()
   result: string;
 
   @Prop()
@@ -19,9 +22,6 @@ export class Task {
 
   @Prop()
   notes: string;
-
-  @Prop()
-  details: string;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);
