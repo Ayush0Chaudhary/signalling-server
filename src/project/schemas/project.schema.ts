@@ -9,10 +9,14 @@ export class Project {
   name: string;
 
   @Prop({ required: true })
-  tasks: [string];
+  tasks: string[];
 
   @Prop({ required: true })
-  participants: [string];
+  participants: string[];
+
+  @Prop()
+  videoUrl: string;
+
 }
 
-export const CatSchema = SchemaFactory.createForClass(Project);
+export const ProjectSchema = SchemaFactory.createForClass(Project);
