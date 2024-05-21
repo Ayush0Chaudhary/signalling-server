@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { CreatedProjectDto } from './dto/create-project.dto';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -28,6 +28,15 @@ export class ProjectController {
     return this.projectService.deleteTask(task);
   }
 
+  @Get('getTasks/:id')
+  getTasks(@Param('id') id: string) {
+    return this.projectService.getTasks(id);
+  }
+
+  @Post('updateTask')
+  updateTask(@Body() task: CreateTaskDto) {
+    return this.projectService.updateTask(task);
+  }
   // @Post('addParticipant')
   // addParticipant(@Body() participant: any) {
   //   return this.projectService.addParticipant(participant);
@@ -39,5 +48,4 @@ export class ProjectController {
   // }
 
   // @Post
-
 }

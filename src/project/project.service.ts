@@ -73,6 +73,7 @@ export class ProjectService {
     if (!toBeDeletedTasks) {
       return 'Task not found';
     }
+    //NOTE: This is not working
     const newTasks = [];
     console.log(project.tasks);
 
@@ -87,5 +88,36 @@ export class ProjectService {
     project.save();
     await this.taskModel.deleteMany({ title: deleteTask.title });
     return project;
+  }
+
+  async getTasks(id: string) {
+    const project = await this.projectModel.findOne({ name: id });
+    if (!project) {
+      return 'Project not found';
+    }
+    const tasks = await this.taskModel.find({ _id: { $in: project.tasks } });
+    return tasks;
+  }
+
+  async updateTask(task: CreateTaskDto) {
+    const project = await this.projectModel.findOne({
+      name: task.projectName,
+    });
+    if (!project) {
+      return 'Project not found';
+    }
+
+    const toBeUpdatedTask = await this.taskModel.findOne({
+      _id: { $in: project.tasks },
+      title: task.title,
+    });
+    if (!toBeUpdatedTask) {
+      return 'Task not found';
+    }
+    toBeUpdatedTask.result = task.result;
+    toBeUpdatedTask.classification = task.classification;
+    toBeUpdatedTask.notes = task.notes;
+    toBeUpdatedTask.save();
+    return toBeUpdatedTask;
   }
 }
