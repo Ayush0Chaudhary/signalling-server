@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
+import { Project } from 'src/project/schemas/project.schema';
 
 export type TaskDocument = HydratedDocument<Task>;
 
@@ -7,6 +8,13 @@ export type TaskDocument = HydratedDocument<Task>;
 export class Task {
   @Prop({ required: true })
   title: string;
+
+  // @Prop({
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: 'Project',
+  //   required: true,
+  // })
+  // project: Project;
 
   @Prop()
   description: string;

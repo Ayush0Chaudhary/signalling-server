@@ -26,15 +26,17 @@ export class ProjectService {
     return this.createProject(project);
   }
   async createProject(createdProjectDto: CreatedProjectDto) {
+    if (await this.projectModel.findOne({ name: createdProjectDto.name })) {
+      return 'Project already exists';
+    }
     const createdProject = new this.projectModel(createdProjectDto);
-    createdProject
-      .save()
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        return err;
-      });
+
+    createdProject.save().catch((err) => {
+      console.log(err);
+      return;
+    });
+
+    return createdProject;
   }
 
   async addTask(createTaskDto: CreateTaskDto) {
@@ -57,16 +59,33 @@ export class ProjectService {
     project.save();
     return project;
   }
+
   async deleteTask(deleteTask: DeleteTaskDto) {
     const project = await this.projectModel.findOne({
       name: deleteTask.projectName,
     });
-    const task = await this.taskModel.findOne({
+    if (!project) {
+      return 'Project not found';
+    }
+    const toBeDeletedTasks = await this.taskModel.find({
       title: deleteTask.title,
     });
-    project.tasks = project.tasks.filter((t) => t !== task);
+    if (!toBeDeletedTasks) {
+      return 'Task not found';
+    }
+    const newTasks = [];
+    console.log(project.tasks);
+
+    for (let i = 0; i < project.tasks.length; i++) {
+      console.log(project.tasks[i], deleteTask.title);
+      if (project.tasks[i].title !== deleteTask.title) {
+        newTasks.push(project.tasks[i]);
+      }
+    }
+    project.tasks = newTasks;
+    // console.log(project.tasks.map((t) => t.title));
     project.save();
-    await this.taskModel.deleteOne({ _id: task._id });
+    await this.taskModel.deleteMany({ title: deleteTask.title });
     return project;
   }
 }
