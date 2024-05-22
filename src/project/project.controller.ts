@@ -37,15 +37,8 @@ export class ProjectController {
   updateTask(@Body() task: CreateTaskDto) {
     return this.projectService.updateTask(task);
   }
-  // @Post('addParticipant')
-  // addParticipant(@Body() participant: any) {
-  //   return this.projectService.addParticipant(participant);
-  // }
-
-  // @Post('removeParticipant')
-  // removeParticipant(@Body() participant: any) {
-  //   return this.projectService.removeParticipant(participant);
-  // }
-
-  // @Post
+  @Get('getParticipants/:id')
+  getParticipants(@Param('id') id: string) {
+    return this.projectService.getParticipants(id);
+  }
 }

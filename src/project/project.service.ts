@@ -7,6 +7,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { Task } from 'src/task/schema/task.schema';
 import { title } from 'process';
 import { DeleteTaskDto } from './dto/delete-task.dto';
+import { Participant } from 'src/participants/schema/participants.schema';
 
 @Injectable()
 export class ProjectService {
@@ -14,6 +15,7 @@ export class ProjectService {
     @InjectConnection() private connection: Connection,
     @InjectModel(Project.name) private projectModel: Model<Project>,
     @InjectModel(Task.name) private taskModel: Model<Task>,
+    @InjectModel(Participant.name) private participantModel: Model<Participant>,
   ) {}
 
   async test() {
@@ -119,5 +121,16 @@ export class ProjectService {
     toBeUpdatedTask.notes = task.notes;
     toBeUpdatedTask.save();
     return toBeUpdatedTask;
+  }
+
+  async getParticipants(id: string) {
+    const project = await this.projectModel.findOne({ name: id });
+    if (!project) {
+      return 'Project not found';
+    }
+    const participants = await this.participantModel.find({
+      _id: { $in: project.participants },
+    });
+    return participants;
   }
 }

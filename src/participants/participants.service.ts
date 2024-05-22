@@ -18,10 +18,11 @@ export class ParticipantsService {
   }
 
   async addParticipant(data: CreateParticipantDto) {
-    console.log(data);
-
     const participant = new this.participantModel(data);
-    return await participant.save();
+    return await participant.save().catch((err) => {
+      console.log('Error: ', err.message);
+      return 'Error occurred while saving the participant.';
+    });
   }
 
   async getParticipant(id: string) {
@@ -44,5 +45,14 @@ export class ParticipantsService {
     await participant.save();
     await project.save();
     return participant;
+  }
+
+  async getParticipantProjects(id: string) {
+    const participant = await this.participantModel.findOne({ email: id });
+    if (!participant) return 'Participant not found';
+    const projects = await this.projectModel.find({
+      _id: { $in: participant.projects },
+    });
+    return projects;
   }
 }
