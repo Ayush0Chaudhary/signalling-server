@@ -5,7 +5,6 @@ import { Project } from './schemas/project.schema';
 import { CreatedProjectDto } from './dto/create-project.dto';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { Task } from 'src/task/schema/task.schema';
-import { title } from 'process';
 import { DeleteTaskDto } from './dto/delete-task.dto';
 import { Participant } from 'src/participants/schema/participants.schema';
 

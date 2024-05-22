@@ -37,6 +37,7 @@ export class ProjectController {
   updateTask(@Body() task: CreateTaskDto) {
     return this.projectService.updateTask(task);
   }
+
   @Get('getParticipants/:id')
   getParticipants(@Param('id') id: string) {
     return this.projectService.getParticipants(id);
